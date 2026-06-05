@@ -8,6 +8,7 @@ dist/
 !.env.example
 .vscode/
 .idea/
+.netlify/
 
 # Logs and caches
 *.log
