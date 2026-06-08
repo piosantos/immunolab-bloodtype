@@ -23,17 +23,25 @@ export default function GameWrapper() {
     const [stage, setStage] = useState<'DIAGNOSIS' | 'CROSSMATCH'>('DIAGNOSIS');
     const [patient, setPatient] = useState(() => makePatient(1001));
     const [selectedDonor, setSelectedDonor] = useState<FullBloodType | null>(null);
+    const [diagnosisLocked, setDiagnosisLocked] = useState(false);
 
     const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const diagnosisUnlockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const transfuseLock = useRef(false);
 
     // ✅ Checked: Audio System Hook Call
     useHeartMonitor(gameState.isActive, gameState.timeLeft, gameState.lives);
 
-    useEffect(() => { return () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }; }, []);
+    useEffect(() => {
+        return () => {
+            if (advanceTimer.current) clearTimeout(advanceTimer.current);
+            if (diagnosisUnlockTimer.current) clearTimeout(diagnosisUnlockTimer.current);
+        };
+    }, []);
 
     const handleDiagnosis = useCallback((diagnosis: FullBloodType) => {
-        if (gameState.lives <= 0) return;
+        if (gameState.lives <= 0 || diagnosisLocked || stage !== 'DIAGNOSIS') return;
+        setDiagnosisLocked(true);
         if (diagnosis === patient.type) {
             SoundEngine.init();
             generateLevelInventory(patient.type);
@@ -44,8 +52,10 @@ export default function GameWrapper() {
             SoundEngine.init();
             SoundEngine.playFlatline();
             submitDiagnosis(false);
+            if (diagnosisUnlockTimer.current) clearTimeout(diagnosisUnlockTimer.current);
+            diagnosisUnlockTimer.current = setTimeout(() => setDiagnosisLocked(false), 350);
         }
-    }, [patient, generateLevelInventory, submitDiagnosis, gameState.lives, crossmatch]);
+    }, [patient, generateLevelInventory, submitDiagnosis, gameState.lives, crossmatch, diagnosisLocked, stage]);
 
     const handleSelectBag = useCallback((type: FullBloodType) => {
         if (crossmatch.phase === 'ANALYSIS' || inventory[type] <= 0) return;
@@ -80,13 +90,14 @@ export default function GameWrapper() {
             setSelectedDonor(null);
             crossmatch.reset();
             transfuseLock.current = false;
+            setDiagnosisLocked(false);
         }, 1000);
     }, [consumeBag, crossmatch, selectedDonor, stewardshipPoints, submitDiagnosis]);
 
     return (
-        <div className="min-h-screen bg-slate-950 flex flex-col text-white overflow-hidden relative">
+        <div className="relative flex min-h-screen flex-col overflow-x-clip bg-slate-950 text-white">
             <TraumaHUD gameState={gameState} />
-            <div className="flex-1 relative">
+            <div className="relative min-h-0 flex-1 overflow-x-clip">
                 {gameState.lives <= 0 ? (
                     <div className="absolute inset-0 flex items-center justify-center z-50">
                         <div className="text-center p-12 border border-red-500/50 rounded-xl bg-red-950/30 backdrop-blur">
@@ -97,13 +108,13 @@ export default function GameWrapper() {
                 ) : (
                     <AnimatePresence mode="wait">
                         {stage === 'DIAGNOSIS' ? (
-                            <motion.div key="diag" initial={{ x: -300, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -300, opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center">
-                                <div className="mb-4 text-center"><h2 className="text-xl font-mono text-emerald-400">PATIENT #{patient.id}</h2><p className="text-slate-500 text-sm">STEP 1: IDENTIFY BLOOD TYPE</p></div>
-                                <BloodTestingLab key={patient.id} mode="TRAUMA" targetSample={patient.type} onDiagnose={handleDiagnosis} />
+                            <motion.div key="diag" initial={{ x: -180, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -180, opacity: 0 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-0 flex flex-col items-center justify-center overflow-x-clip overflow-y-auto px-2 py-6">
+                                <div className="mb-3 text-center sm:mb-4"><h2 className="font-mono text-lg font-black tracking-[0.2em] text-emerald-300 sm:text-xl">PATIENT #{patient.id}</h2><p className="font-mono text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500">Step 1: Identify Blood Type</p></div>
+                                <BloodTestingLab key={patient.id} mode="TRAUMA" targetSample={patient.type} onDiagnose={handleDiagnosis} isDiagnosingLocked={diagnosisLocked} />
                             </motion.div>
                         ) : (
-                            <motion.div key="xmatch" initial={{ x: 300, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 300, opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center pb-32">
-                                <div className="mb-4 text-center"><h2 className="text-xl font-mono text-emerald-400 flex items-center justify-center gap-2">PATIENT #{patient.id} <CheckCircle size={16} /></h2><p className="text-slate-500 text-sm">STEP 2: CROSSMATCH & TRANSFUSE</p></div>
+                            <motion.div key="xmatch" initial={{ x: 180, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 180, opacity: 0 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-0 flex flex-col items-center justify-center overflow-x-clip overflow-y-auto px-3 pb-36 pt-6 sm:pb-32">
+                                <div className="mb-4 text-center"><h2 className="flex items-center justify-center gap-2 font-mono text-lg font-black tracking-[0.2em] text-emerald-300 sm:text-xl">PATIENT #{patient.id} <CheckCircle size={16} /></h2><p className="font-mono text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500">Step 2: Crossmatch & Transfuse</p></div>
                                 <CrossmatchBench patientType={patient.type} donorType={selectedDonor} phase={crossmatch.phase} result={crossmatch.result} onDrop={handleDrop} onTransfuse={handleTransfusion} onDiscard={() => { setSelectedDonor(null); crossmatch.reset(); }} />
                                 {crossmatch.phase === 'DECISION' && crossmatch.result?.safe && <div className="mt-4 text-xs font-mono text-slate-400">Stewardship Bonus: <span className="text-emerald-400 font-bold">+{stewardshipPoints}</span></div>}
                             </motion.div>

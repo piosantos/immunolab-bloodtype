@@ -1,22 +1,21 @@
 # ImmunoLab Pro
 
-ImmunoLab Pro is an offline-first, browser-based hematology simulation for learning ABO/Rh blood typing and basic transfusion compatibility. It presents the learner with a virtual lab bench, reagent wells, timed reactions, a trauma-mode scoring loop, donor inventory, and crossmatch decisions.
+ImmunoLab Pro is an offline-first, browser-based educational simulation for learning simplified ABO/Rh blood typing and basic transfusion compatibility. It gives learners a virtual lab bench with reagent wells, timed reactions, trauma-mode diagnosis, donor inventory, crossmatch decisions, scoring, and audio feedback.
 
-This project is an educational simulator. It is not a clinical device, diagnostic tool, transfusion decision system, or substitute for institutional protocols or licensed medical supervision.
+This project is not a clinical device, diagnostic tool, transfusion decision system, or substitute for institutional protocols or licensed medical supervision. The biology model is a deterministic strict-state simulation of simplified ABO/Rh rules for education and demonstration only.
 
-## What It Does
+## Features
 
-- Simulates Anti-A, Anti-B, and Anti-D blood typing reactions.
-- Provides a sandbox mode for practicing any supported blood type.
-- Provides a trauma mode with timed patient diagnosis, donor inventory, compatibility testing, scoring, lives, and audio feedback.
-- Runs entirely in the browser with no backend, account system, analytics, or external API calls.
-- Ships as a Vite-powered Progressive Web App configured for offline caching.
+- Anti-A, Anti-B, and Anti-D reagent testing for the eight standard ABO/Rh combinations.
+- Sandbox Mode for selecting a sample and practicing blood typing without pressure.
+- Trauma Mode for timed patient diagnosis, donor inventory management, crossmatch testing, and transfusion scoring.
+- Deterministic domain logic in `src/logic` with Vitest coverage for blood typing and compatibility invariants.
+- Offline-capable Vite PWA with generated service worker support.
+- Cloudflare Pages configuration through `wrangler.toml`.
 
 ## Supported Blood Types
 
-The simulator models the eight standard ABO/Rh combinations:
-
-| Type | Antigens |
+| Type | Simulated Antigens |
 | --- | --- |
 | A+ | A, Rh |
 | A- | A |
@@ -31,37 +30,15 @@ The simulator models the eight standard ABO/Rh combinations:
 
 ### Sandbox Mode
 
-Sandbox Mode is the training workspace. Select a patient sample, add Anti-A, Anti-B, and Anti-D reagents, then interpret whether each well clumps or remains liquid.
+Select a patient sample, add Anti-A, Anti-B, and Anti-D reagents, then interpret whether each well clumps or remains liquid.
 
 ### Trauma Mode
-
-Trauma Mode turns the same lab workflow into a game loop:
 
 1. Identify the patient's blood type.
 2. Select a donor unit from the generated inventory.
 3. Run a compatibility crossmatch.
 4. Transfuse only if the match is safe.
 5. Earn score from speed, streaks, and donor stewardship.
-
-## Project Structure
-
-```text
-.
-├── public/                 PWA icons
-├── src/
-│   ├── components/         React UI components
-│   ├── hooks/              Simulation, timer, inventory, PWA, and audio hooks
-│   ├── logic/              Pure domain logic for blood typing, compatibility, scoring, audio
-│   ├── App.tsx             Top-level mode selection
-│   ├── main.tsx            React entry point
-│   └── index.css           Tailwind and global styles
-├── docs/
-│   ├── ARCHITECTURE.md     System design and data flow
-│   └── DEVELOPMENT.md      Setup, scripts, validation, release notes
-├── HELP.md                 In-app style field manual
-├── vite.config.ts          Vite, React, Tailwind, and PWA config
-└── package.json            Scripts and dependencies
-```
 
 ## Tech Stack
 
@@ -71,14 +48,36 @@ Trauma Mode turns the same lab workflow into a game loop:
 - Tailwind CSS 4
 - Framer Motion
 - Lucide React
+- Vitest
 - vite-plugin-pwa
+
+## Project Structure
+
+```text
+.
+├── public/                 PWA icons, Cloudflare headers, SPA redirects
+├── src/
+│   ├── components/         React UI components
+│   ├── hooks/              Simulation, timer, inventory, PWA, and audio hooks
+│   ├── logic/              Deterministic simulation and scoring logic
+│   ├── App.tsx             Top-level mode selection
+│   ├── main.tsx            React entry point
+│   └── index.css           Tailwind and global styles
+├── docs/
+│   ├── ARCHITECTURE.md     System design and data flow
+│   └── DEVELOPMENT.md      Setup, validation, and release guidance
+├── HELP.md                 Field manual for learners
+├── wrangler.toml           Cloudflare Pages output configuration
+├── vite.config.ts          Vite, React, Tailwind, and PWA config
+└── package.json            Scripts and dependencies
+```
 
 ## Requirements
 
 - Node.js compatible with Vite 7
 - npm
 
-The repository includes `package-lock.json`; use `npm ci` for reproducible installs in CI or clean environments.
+The repository includes `package-lock.json`; use `npm ci` for reproducible installs.
 
 ## Getting Started
 
@@ -89,33 +88,54 @@ npm run dev
 
 Vite prints the local development URL, typically `http://localhost:5173`.
 
-## Available Scripts
+## Scripts
 
 ```bash
 npm run dev      # start the local Vite dev server
-npm run build    # type-check and create a production build
 npm run lint     # run ESLint
+npm run test     # run Vitest unit tests
+npm run build    # type-check and build production assets
 npm run preview  # preview the production build locally
 ```
 
-## Validation Status
+## Testing
 
-Before the initial GitHub commit, the following checks were run locally:
+The current unit test suite protects the deterministic biological domain logic:
+
+- `src/logic/BloodLogicCore.test.ts` covers all 8 blood types against Anti-A, Anti-B, and Anti-D.
+- `src/logic/CompatibilityCore.test.ts` covers O- donation, AB+ receiving, incompatible antigen conflicts, and O- stewardship scoring.
+
+Run:
 
 ```bash
-npm run lint
+npm run test
+```
+
+## Build
+
+```bash
 npm run build
 ```
 
-Both are expected to pass before release work continues.
+The production output is written to `dist`.
 
-## Architecture Notes
+## Cloudflare Pages Deployment
 
-The application keeps the medically relevant rules in small domain modules under `src/logic`, while React components and hooks handle rendering, state transitions, timers, inventory, and animation. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full system map.
+The project includes `wrangler.toml`:
 
-## Development Notes
+```toml
+name = "immuno-lab-pro"
+pages_build_output_dir = "dist"
+```
 
-See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for setup, code quality expectations, release checks, PWA notes, and recommended tests.
+Build and deploy the generated `dist` directory with Wrangler:
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name immuno-lab-pro
+```
+
+The `public/_headers` and `public/_redirects` files are included in the Vite public directory so Cloudflare Pages can apply cache headers and SPA fallback routing.
 
 ## Privacy
 
@@ -124,3 +144,4 @@ ImmunoLab Pro currently stores no user data, sends no API requests, and does not
 ## Safety Disclaimer
 
 This software is for education and demonstration only. It intentionally simplifies real-world hematology and transfusion practice. Do not use it to make clinical, laboratory, emergency, or patient-care decisions.
+

@@ -7,14 +7,14 @@
 
 ## 1. What is this App?
 
-**ImmunoLab Pro** is a medically accurate, offline-first simulator for blood typing (ABO/Rh).
+**ImmunoLab Pro** is an offline-first educational simulation for practicing simplified ABO/Rh blood typing concepts.
 
-Unlike standard textbook diagrams, this app simulates the **physics of biology**. You don't just click an answer; you must perform the lab test, manage reaction times, and interpret the physical changes in the blood sample—all while under the pressure of a simulated Trauma Center.
+Unlike standard textbook diagrams, this app uses a **deterministic strict-state simulation of simplified ABO/Rh rules**. You don't just click an answer; you must perform the lab test, manage reaction times, and interpret the simulated physical changes in the blood sample—all while under the pressure of a simulated Trauma Center.
 
 ### Key Features:
 
 * **Bio-Glass Physics:** Realistic liquid dispersion and agglutination (clumping) visuals.
-* **Deterministic Biology:** Guaranteed scientific accuracy (A+ blood *always* reacts correctly with Anti-A and Anti-D).
+* **Deterministic Biology:** Simplified ABO/Rh rules always resolve the same way for the same sample and reagent.
 * **Trauma Mode:** A gamified "Time Attack" mode where you must save patients before they flatline.
 
 ---
