@@ -15,7 +15,9 @@ import CrossmatchBench from './CrossmatchBench';
 
 const makePatient = (id: number) => ({ id, type: ALL_BLOOD_TYPES[Math.floor(Math.random() * 8)] });
 
-export default function GameWrapper() {
+interface GameWrapperProps { onAbort: () => void; }
+
+export default function GameWrapper({ onAbort }: GameWrapperProps) {
     const { gameState, submitDiagnosis } = useTraumaMode();
     const { inventory, generateLevelInventory, consumeBag } = useInventory();
     const crossmatch = useCrossmatchSim();
@@ -96,7 +98,7 @@ export default function GameWrapper() {
 
     return (
         <div className="relative flex min-h-screen flex-col overflow-x-clip bg-slate-950 text-white">
-            <TraumaHUD gameState={gameState} />
+            <TraumaHUD gameState={gameState} onAbort={onAbort} />
             <div className="relative min-h-0 flex-1 overflow-x-clip">
                 {gameState.lives <= 0 ? (
                     <div className="absolute inset-0 flex items-center justify-center z-50">
@@ -108,7 +110,7 @@ export default function GameWrapper() {
                 ) : (
                     <AnimatePresence mode="wait">
                         {stage === 'DIAGNOSIS' ? (
-                            <motion.div key="diag" initial={{ x: -180, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -180, opacity: 0 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-0 flex flex-col items-center justify-center overflow-x-clip overflow-y-auto px-2 py-6">
+                            <motion.div key="diag" initial={{ x: -180, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -180, opacity: 0 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-0 flex flex-col items-center justify-center overflow-x-clip overflow-y-auto px-3 pb-36 pt-6 sm:pb-32">
                                 <div className="mb-3 text-center sm:mb-4"><h2 className="font-mono text-lg font-black tracking-[0.2em] text-emerald-300 sm:text-xl">PATIENT #{patient.id}</h2><p className="font-mono text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500">Step 1: Identify Blood Type</p></div>
                                 <BloodTestingLab key={patient.id} mode="TRAUMA" targetSample={patient.type} onDiagnose={handleDiagnosis} isDiagnosingLocked={diagnosisLocked} />
                             </motion.div>

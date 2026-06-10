@@ -49,15 +49,16 @@ function App() {
                 </div>
             )}
             {view === 'SANDBOX' && (
-                <div className="relative">
-                    <button onClick={() => setView('MENU')} className="absolute top-4 left-4 z-50 px-4 py-2 bg-slate-800 rounded-full text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">← MENU</button>
-                    <div className="min-h-screen flex items-center justify-center"><BloodTestingLab mode="SANDBOX" /></div>
+                <div className="flex flex-col min-h-screen">
+                    <div className="pt-[max(1rem,env(safe-area-inset-top))] px-4 pb-3 border-b border-white/5 bg-slate-950/80 backdrop-blur">
+                        <button onClick={() => setView('MENU')} className="px-4 py-2 bg-slate-800 rounded-full text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">← MENU</button>
+                    </div>
+                    <div className="flex flex-1 items-center justify-center"><BloodTestingLab mode="SANDBOX" /></div>
                 </div>
             )}
             {view === 'TRAUMA' && (
                 <div className="relative">
-                    <button onClick={() => setView('MENU')} className="fixed top-4 left-4 z-[60] p-2 bg-slate-900/50 backdrop-blur rounded-lg text-slate-500 hover:text-white border border-white/5 hover:border-white/20 transition-all"><span className="font-mono text-xs font-bold">ABORT</span></button>
-                    <GameWrapper />
+                    <GameWrapper onAbort={() => setView('MENU')} />
                 </div>
             )}
         </div>
