@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import GameWrapper from './components/GameWrapper';
 import BloodTestingLab from './components/BloodTestingLab';
-import { Beaker, Siren, Download, Share } from 'lucide-react';
+import { Beaker, Siren, Download, Share, BookOpen, ExternalLink } from 'lucide-react';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { SoundEngine } from './logic/SoundEngine';
 
@@ -23,7 +23,7 @@ function App() {
             {view === 'MENU' && (
                 <div className="h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950 z-0" />
-                    <div className="z-10 text-center space-y-8 max-w-2xl">
+                    <div className="z-10 text-center space-y-8 max-w-2xl pb-[max(0rem,env(safe-area-inset-bottom))]">
                         <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-cyan-600">ImmunoLab<span className="text-white">Pro</span></h1>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                             <button onClick={() => startGame('SANDBOX')} className="group relative p-8 bg-slate-900/50 hover:bg-slate-800 border border-white/10 hover:border-cyan-500/50 rounded-2xl transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-900/20">
@@ -34,6 +34,20 @@ function App() {
                                 <div className="flex items-center gap-4 mb-4"><div className="p-3 rounded-lg bg-red-950 text-red-400 group-hover:bg-red-600 group-hover:text-white transition-colors"><Siren size={24} /></div><h2 className="text-xl font-bold">Trauma Mode</h2></div>
                                 <p className="text-sm text-slate-500">High-intensity exam. Save patients against the clock.</p>
                             </button>
+                        </div>
+                        <div className="w-full">
+                            <a href="https://flipbook-goldar-ai.pages.dev/" target="_blank" rel="noopener noreferrer" className="bg-slate-900/30 border border-white/5 hover:bg-slate-800/50 hover:border-blue-500/30 transition-all rounded-xl p-4 flex items-center justify-between group text-left">
+                                <div className="flex min-w-0 items-center gap-4">
+                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-950/60 text-blue-300 transition-colors group-hover:bg-blue-500/20 group-hover:text-blue-200">
+                                        <BookOpen size={22} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="text-sm font-bold text-slate-100">Consult Flipbook Goldar AI</div>
+                                        <div className="mt-1 text-xs leading-relaxed text-slate-500">Review hematology theory and ABO/Rh rules before entering the lab.</div>
+                                    </div>
+                                </div>
+                                <ExternalLink size={18} className="ml-4 shrink-0 text-slate-500 transition-colors group-hover:text-blue-300" />
+                            </a>
                         </div>
                         {isInstallable && (
                             <button onClick={installApp} className="absolute bottom-8 right-8 flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full font-bold shadow-lg transition-all animate-bounce-slow">
