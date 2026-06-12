@@ -26,12 +26,13 @@ npm run preview
 ImmunoLab Pro uses Vitest for core logic tests. The current suite covers:
 
 - blood typing reactions across all eight ABO/Rh blood types with Anti-A, Anti-B, and Anti-D reagents
-- crossmatch compatibility invariants, including O- donation, AB+ receiving, incompatible antigen conflicts, and O- stewardship scoring
+- the full 8x8 simplified ABO/Rh recipient/donor compatibility matrix
+- crossmatch invariants, including O- donation, AB+ receiving, incompatible antigen conflicts, debrief detail payloads, and O- stewardship scoring
 
 Recommended next targets:
 
 - `TraumaEngine.calculateScore` scoring behavior
-- debrief and outcome-summary logic when those flows are introduced
+- React-level smoke coverage for debrief progression, paused timer behavior, and next-case score commitment
 
 ## Validation Checklist
 
@@ -56,12 +57,14 @@ Then verify:
 - service worker registration succeeds
 - sandbox mode can run all three reagent reactions
 - trauma mode can complete diagnosis, crossmatch, transfusion, and next-patient progression
+- the debrief card appears after a submitted match and the timer does not continue counting down while it is open
 
 ## Code Quality Expectations
 
 - Keep blood typing and compatibility rules in `src/logic`.
 - Keep browser effects, timers, and React state in hooks or components.
 - Avoid moving domain rules into JSX.
+- Render compatibility explanations from `CrossmatchEngine.analyze` details instead of recalculating biology in React components.
 - Prefer small pure functions for logic that can be unit tested.
 - Keep comments focused on intent, constraints, or non-obvious browser behavior.
 - Do not commit generated `dist`, local `node_modules`, `.DS_Store`, or environment files.
@@ -86,7 +89,8 @@ Recommended browser smoke tests:
 - sandbox sample selection enables reagent buttons
 - trauma diagnosis advances to crossmatch only when correct
 - incompatible donor can be discarded
-- compatible donor can be transfused
+- compatible donor can be submitted
+- debrief card shows antibodies, antigens, conflict status, and next-case action
 - game over appears after lives are exhausted
 
 ## PWA Notes
@@ -106,10 +110,10 @@ When changing PWA metadata:
 2. Run `npm run lint`.
 3. Run `npm run build`.
 4. Preview with `npm run preview`.
-5. Smoke-test sandbox and trauma flows.
+5. Smoke-test sandbox and Trauma Challenge flows.
 6. Commit only source, config, docs, and lockfile changes.
 7. Push to GitHub.
 
 ## Safety Language
 
-Any public distribution should include the educational-only disclaimer from the README. The app should not be marketed or presented as clinical decision support.
+Any public distribution should include the shared educational-only disclaimer from the README and `SafetyNotice` component. The app should not be marketed or presented as clinical decision support, laboratory decision support, emergency guidance, or patient-care tooling.

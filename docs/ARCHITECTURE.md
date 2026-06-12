@@ -11,6 +11,7 @@ React app
     SANDBOX -> BloodTestingLab -> useBloodSim -> BloodEngine
     TRAUMA  -> GameWrapper
                 TraumaHUD
+                SafetyNotice
                 BloodTestingLab -> useBloodSim -> BloodEngine
                 BloodFridge -> useInventory -> CrossmatchEngine
                 CrossmatchBench -> useCrossmatchSim -> CrossmatchEngine
@@ -39,6 +40,8 @@ The result is a discriminated union:
 - `safe: true` with `EXACT` or `COMPATIBLE`
 - `safe: false` with `INCOMPATIBLE`
 
+Every result also includes educational details for the debrief card: recipient antibodies, donor antigens, any conflict antigen, and a short simplified ABO/Rh summary.
+
 ### `src/logic/TraumaEngine.ts`
 
 Calculates score from elapsed time and current streak. It is pure and easy to unit test.
@@ -59,7 +62,7 @@ Renders the three reagent wells, reagent buttons, sandbox sample selector, and t
 
 ### `GameWrapper`
 
-Coordinates trauma mode:
+Coordinates Trauma Challenge:
 
 - patient generation
 - diagnosis handling
@@ -67,9 +70,10 @@ Coordinates trauma mode:
 - donor selection
 - crossmatch execution
 - transfusion scoring
+- debrief rendering
 - next-patient progression
 
-This is the highest-coupled component in the app. If Trauma Mode grows, move more of this orchestration into a reducer or explicit state machine.
+This is the highest-coupled component in the app. If Trauma Challenge grows, move more of this orchestration into a reducer or explicit state machine.
 
 ### `BloodFridge`
 
@@ -81,7 +85,11 @@ Displays recipient, donor, compatibility testing, safe/unsafe result states, dis
 
 ### `TraumaHUD`
 
-Displays patient status, score, and time remaining.
+Displays patient status, score, time remaining, abort action, and the shared educational safety notice.
+
+### `SafetyNotice`
+
+Displays the compact educational-only boundary used in the menu and active challenge HUD.
 
 ## Hooks
 
@@ -105,11 +113,11 @@ Generates a small donor inventory for each patient. It guarantees at least two s
 
 ### `useTraumaMode`
 
-Owns score, streak, lives, wave, active state, and countdown timer.
+Owns score, streak, lives, wave, active state, and countdown timer. It accepts a pause flag so the debrief card can stop the timer without changing score formulas.
 
 ### `useHeartMonitor`
 
-Schedules heartbeat audio while Trauma Mode is active and plays flatline audio when lives reach zero.
+Schedules heartbeat audio while Trauma Challenge is active and plays flatline audio when lives reach zero.
 
 ### `usePWAInstall`
 
@@ -131,7 +139,8 @@ random patient
   -> generated donor inventory
   -> learner selects donor
   -> CrossmatchEngine.analyze
-  -> safe transfusion or discard
+  -> safe match submission or discard
+  -> debrief explains compatibility details
   -> TraumaEngine.calculateScore
   -> next patient
 ```
@@ -148,5 +157,5 @@ The PWA configuration lives in `vite.config.ts`. Workbox caches generated JS, CS
 
 - The simulation is intentionally simplified and educational.
 - Compatibility logic is deterministic and should be protected by unit tests.
-- Trauma Mode currently relies on randomized patient and inventory generation.
+- Trauma Challenge currently relies on randomized patient and inventory generation.
 - Audio depends on browser Web Audio support and user gesture policies.

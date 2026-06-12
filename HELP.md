@@ -15,7 +15,7 @@ Unlike standard textbook diagrams, this app uses a **deterministic strict-state 
 
 * **Bio-Glass Physics:** Realistic liquid dispersion and agglutination (clumping) visuals.
 * **Deterministic Biology:** Simplified ABO/Rh rules always resolve the same way for the same sample and reagent.
-* **Trauma Mode:** A gamified "Time Attack" mode where you must save patients before they flatline.
+* **Trauma Challenge:** A gamified timed mode for practicing simplified ABO/Rh compatibility decisions.
 
 ---
 
@@ -69,7 +69,7 @@ Use this logic to diagnose the patient:
 ### Step 3: Submit Diagnosis
 
 * **Sandbox Mode:** Just observe.
-* **Trauma Mode:** Click the keypad (e.g., `A+`, `O-`) to confirm your diagnosis.
+* **Trauma Challenge:** Click the keypad (e.g., `A+`, `O-`) to confirm your diagnosis.
 * **Correct:** You earn points and save the patient.
 * **Incorrect:** You lose a "Life" (Patient Health drops).
 
@@ -85,7 +85,7 @@ Use this logic to diagnose the patient:
 * Reset the slide at any time.
 * No timer, no score.
 
-### 🚑 Trauma Mode (Exam)
+### 🚑 Trauma Challenge (Exam)
 
 * **Goal:** Speed and Accuracy.
 * **The HUD (Heads-Up Display):**
@@ -111,7 +111,7 @@ Use this logic to diagnose the patient:
 
 **Q: Why is "Type O" not clumping with anything?**
 
-* **A:** Type O blood lacks A and B antigens. If it is also Rh negative (O-), it has *no* antigens to react with, so all wells remain liquid. This is scientifically accurate.
+* **A:** In this simplified ABO/Rh model, Type O blood lacks A and B antigens. If it is also Rh negative (O-), it has no simulated A, B, or Rh antigen to react with, so all wells remain liquid.
 
 ---
 
