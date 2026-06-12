@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import GameWrapper from './components/GameWrapper';
 import BloodTestingLab from './components/BloodTestingLab';
+import SafetyNotice from './components/SafetyNotice';
 import { Beaker, Siren, Download, Share, BookOpen, ExternalLink } from 'lucide-react';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { SoundEngine } from './logic/SoundEngine';
@@ -31,8 +32,8 @@ function App() {
                                 <p className="text-sm text-slate-500">Open lab environment. Manually select patient samples.</p>
                             </button>
                             <button onClick={() => startGame('TRAUMA')} className="group relative p-8 bg-slate-900/50 hover:bg-slate-800 border border-white/10 hover:border-red-500/50 rounded-2xl transition-all duration-300 text-left hover:scale-[1.02] hover:shadow-2xl hover:shadow-red-900/20">
-                                <div className="flex items-center gap-4 mb-4"><div className="p-3 rounded-lg bg-red-950 text-red-400 group-hover:bg-red-600 group-hover:text-white transition-colors"><Siren size={24} /></div><h2 className="text-xl font-bold">Trauma Mode</h2></div>
-                                <p className="text-sm text-slate-500">High-intensity exam. Save patients against the clock.</p>
+                                <div className="flex items-center gap-4 mb-4"><div className="p-3 rounded-lg bg-red-950 text-red-400 group-hover:bg-red-600 group-hover:text-white transition-colors"><Siren size={24} /></div><h2 className="text-xl font-bold">Trauma Challenge</h2></div>
+                                <p className="text-sm text-slate-500">Timed ABO/Rh compatibility challenge using a simplified educational model.</p>
                             </button>
                         </div>
                         <div className="w-full">
@@ -49,6 +50,7 @@ function App() {
                                 <ExternalLink size={18} className="ml-4 shrink-0 text-slate-500 transition-colors group-hover:text-blue-300" />
                             </a>
                         </div>
+                        <SafetyNotice />
                         {isInstallable && (
                             <button onClick={installApp} className="absolute bottom-8 right-8 flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full font-bold shadow-lg transition-all animate-bounce-slow">
                                 <Download size={20} /> Install App

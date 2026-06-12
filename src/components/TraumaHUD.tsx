@@ -1,4 +1,5 @@
 import { Heart } from 'lucide-react';
+import SafetyNotice from './SafetyNotice';
 
 interface HUDProps { gameState: { score: number; lives: number; timeLeft: number; wave: number; }; onAbort: () => void; }
 
@@ -44,9 +45,9 @@ export default function TraumaHUD({ gameState, onAbort }: HUDProps) {
                     </div>
                 </div>
             </div>
-            <p className="mt-2 text-center font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-slate-600">
-                Educational simulation only. Simplified ABO/Rh model. Simulasi edukatif saja. Model ABO/Rh disederhanakan.
-            </p>
+            <div className="mt-2">
+                <SafetyNotice />
+            </div>
         </div>
     );
 }

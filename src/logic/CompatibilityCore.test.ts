@@ -2,7 +2,26 @@ import { describe, expect, it } from 'vitest';
 import { ALL_BLOOD_TYPES, type FullBloodType } from './BloodLogicCore';
 import { CrossmatchEngine } from './CompatibilityCore';
 
+const EXPECTED_SAFE: Record<FullBloodType, Record<FullBloodType, boolean>> = {
+    'A+': { 'A+': true, 'A-': true, 'B+': false, 'B-': false, 'AB+': false, 'AB-': false, 'O+': true, 'O-': true },
+    'A-': { 'A+': false, 'A-': true, 'B+': false, 'B-': false, 'AB+': false, 'AB-': false, 'O+': false, 'O-': true },
+    'B+': { 'A+': false, 'A-': false, 'B+': true, 'B-': true, 'AB+': false, 'AB-': false, 'O+': true, 'O-': true },
+    'B-': { 'A+': false, 'A-': false, 'B+': false, 'B-': true, 'AB+': false, 'AB-': false, 'O+': false, 'O-': true },
+    'AB+': { 'A+': true, 'A-': true, 'B+': true, 'B-': true, 'AB+': true, 'AB-': true, 'O+': true, 'O-': true },
+    'AB-': { 'A+': false, 'A-': true, 'B+': false, 'B-': true, 'AB+': false, 'AB-': true, 'O+': false, 'O-': true },
+    'O+': { 'A+': false, 'A-': false, 'B+': false, 'B-': false, 'AB+': false, 'AB-': false, 'O+': true, 'O-': true },
+    'O-': { 'A+': false, 'A-': false, 'B+': false, 'B-': false, 'AB+': false, 'AB-': false, 'O+': false, 'O-': true },
+};
+
 describe('CrossmatchEngine.analyze', () => {
+    it.each(ALL_BLOOD_TYPES)('matches the full expected donor matrix for %s recipients', (patientType) => {
+        for (const donorType of ALL_BLOOD_TYPES) {
+            const result = CrossmatchEngine.analyze(patientType, donorType);
+
+            expect(result.safe, `${donorType} donor to ${patientType}`).toBe(EXPECTED_SAFE[patientType][donorType]);
+        }
+    });
+
     it('treats O- as universally safe to donate', () => {
         for (const patientType of ALL_BLOOD_TYPES) {
             const result = CrossmatchEngine.analyze(patientType, 'O-');
