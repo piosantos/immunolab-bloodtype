@@ -16,16 +16,16 @@ import CrossmatchBench from './CrossmatchBench';
 const makePatient = (id: number) => ({ id, type: ALL_BLOOD_TYPES[Math.floor(Math.random() * 8)] });
 
 interface GameWrapperProps { onAbort: () => void; }
-interface DebriefState { title: string; outcome: string; result: CrossmatchResult; }
+interface DebriefState { title: string; outcome: string; result: CrossmatchResult; scoreCommitStartWave: number | null; }
 
 const formatDetailList = (items: string[]) => items.length > 0 ? items.join(', ') : 'None';
 
 export default function GameWrapper({ onAbort }: GameWrapperProps) {
-    const { gameState, submitDiagnosis } = useTraumaMode();
+    const [stage, setStage] = useState<'DIAGNOSIS' | 'CROSSMATCH' | 'DEBRIEF'>('DIAGNOSIS');
+    const { gameState, submitDiagnosis } = useTraumaMode(stage === 'DEBRIEF');
     const { inventory, generateLevelInventory, consumeBag } = useInventory();
     const crossmatch = useCrossmatchSim();
 
-    const [stage, setStage] = useState<'DIAGNOSIS' | 'CROSSMATCH' | 'DEBRIEF'>('DIAGNOSIS');
     const [patient, setPatient] = useState(() => makePatient(1001));
     const [selectedDonor, setSelectedDonor] = useState<FullBloodType | null>(null);
     const [diagnosisLocked, setDiagnosisLocked] = useState(false);
@@ -54,6 +54,7 @@ export default function GameWrapper({ onAbort }: GameWrapperProps) {
                 title: 'Diagnosis Review',
                 outcome: `Submitted ${diagnosis}; expected ${patient.type}.`,
                 result: CrossmatchEngine.analyze(patient.type, diagnosis),
+                scoreCommitStartWave: null,
             });
             setStage('DEBRIEF');
         }
@@ -89,11 +90,15 @@ export default function GameWrapper({ onAbort }: GameWrapperProps) {
             title: 'Crossmatch Analysis',
             outcome: `Recipient ${patient.type} / Donor ${selectedDonor}`,
             result,
+            scoreCommitStartWave: gameState.wave,
         });
         setStage('DEBRIEF');
-    }, [consumeBag, crossmatch, patient.type, selectedDonor, stewardshipPoints, submitDiagnosis]);
+    }, [consumeBag, crossmatch, gameState.wave, patient.type, selectedDonor, stewardshipPoints, submitDiagnosis]);
+
+    const isNextCaseReady = !debrief || debrief.scoreCommitStartWave === null || gameState.wave > debrief.scoreCommitStartWave;
 
     const handleNextCase = useCallback(() => {
+        if (!isNextCaseReady) return;
         setStage('DIAGNOSIS');
         setPatient(prev => makePatient(prev.id + 1));
         setSelectedDonor(null);
@@ -101,7 +106,7 @@ export default function GameWrapper({ onAbort }: GameWrapperProps) {
         crossmatch.reset();
         transfuseLock.current = false;
         setDiagnosisLocked(false);
-    }, [crossmatch]);
+    }, [crossmatch, isNextCaseReady]);
 
     return (
         <div className="relative flex min-h-screen flex-col overflow-x-clip bg-slate-950 text-white">
@@ -135,8 +140,8 @@ export default function GameWrapper({ onAbort }: GameWrapperProps) {
                                 <p className="text-sm leading-relaxed text-slate-300">{debrief.result.details.educationalSummary}</p>
                             </div>
 
-                            <button onClick={handleNextCase} className="mt-5 min-h-12 w-full rounded-xl bg-emerald-600 px-6 py-3 font-mono text-sm font-black uppercase tracking-[0.2em] text-white shadow-[0_0_24px_rgba(16,185,129,0.28)] transition-all hover:bg-emerald-500">
-                                NEXT CASE
+                            <button onClick={handleNextCase} disabled={!isNextCaseReady} className="mt-5 min-h-12 w-full rounded-xl bg-emerald-600 px-6 py-3 font-mono text-sm font-black uppercase tracking-[0.2em] text-white shadow-[0_0_24px_rgba(16,185,129,0.28)] transition-all hover:bg-emerald-500 disabled:cursor-wait disabled:bg-slate-700 disabled:text-slate-400 disabled:shadow-none">
+                                {isNextCaseReady ? 'NEXT CASE' : 'COMMITTING SCORE'}
                             </button>
                         </div>
                     </motion.div>
