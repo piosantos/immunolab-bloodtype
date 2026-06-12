@@ -44,6 +44,9 @@ export default function TraumaHUD({ gameState, onAbort }: HUDProps) {
                     </div>
                 </div>
             </div>
+            <p className="mt-2 text-center font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-slate-600">
+                Educational simulation only. Simplified ABO/Rh model. Simulasi edukatif saja. Model ABO/Rh disederhanakan.
+            </p>
         </div>
     );
 }

@@ -49,7 +49,7 @@ export default function CrossmatchBench({ patientType, donorType, phase, result,
                 {phase === 'DECISION' && result && (
                     <div className="flex w-full flex-col gap-3 animate-fade-in sm:w-auto sm:flex-row sm:gap-4">
                         <button onClick={onDiscard} className="min-h-12 rounded-lg border border-red-500/30 px-6 py-3 font-mono text-sm font-bold text-red-400 hover:bg-red-500/10">DISCARD</button>
-                        {result.safe && <button onClick={onTransfuse} className="min-h-12 rounded-lg bg-emerald-600 px-6 py-3 font-bold text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-pulse hover:bg-emerald-500 sm:px-8">INITIATE TRANSFUSION</button>}
+                        {result.safe && <button onClick={onTransfuse} className="min-h-12 rounded-lg bg-emerald-600 px-6 py-3 font-bold text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-pulse hover:bg-emerald-500 sm:px-8">SUBMIT SAFE MATCH</button>}
                     </div>
                 )}
                 {phase === 'DECISION' && !result?.safe && <div className="absolute bottom-[-3rem] text-red-500 font-mono text-sm font-bold bg-black/50 px-4 py-2 rounded">⚠ INCOMPATIBLE MATCH DETECTED</div>}

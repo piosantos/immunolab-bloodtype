@@ -16,9 +16,22 @@ Use `npm ci` when starting from a clean checkout because the project includes `p
 ```bash
 npm run dev
 npm run lint
+npm run test
 npm run build
 npm run preview
 ```
+
+## Tests
+
+ImmunoLab Pro uses Vitest for core logic tests. The current suite covers:
+
+- blood typing reactions across all eight ABO/Rh blood types with Anti-A, Anti-B, and Anti-D reagents
+- crossmatch compatibility invariants, including O- donation, AB+ receiving, incompatible antigen conflicts, and O- stewardship scoring
+
+Recommended next targets:
+
+- `TraumaEngine.calculateScore` scoring behavior
+- debrief and outcome-summary logic when those flows are introduced
 
 ## Validation Checklist
 
@@ -26,6 +39,7 @@ Run these before committing release-bound changes:
 
 ```bash
 npm run lint
+npm run test
 npm run build
 ```
 
@@ -54,33 +68,14 @@ Then verify:
 
 ## Recommended Test Plan
 
-The project does not currently include a test runner. The first testing layer should use Vitest for pure logic and hook behavior.
+Additional useful unit tests:
 
-Recommended initial unit tests:
-
-1. `BloodEngine.testReaction`
-   - all 8 blood types
-   - Anti-A, Anti-B, Anti-D
-   - expected clumping matrix
-
-2. `CrossmatchEngine.analyze`
-   - exact match is safe
-   - compatible non-exact donations are safe
-   - incompatible antigen/antibody conflicts are unsafe
-   - O- donor behavior is covered
-
-3. `CrossmatchEngine.getStewardshipScore`
-   - exact match score
-   - compatible fallback score
-   - O- stewardship penalty outside O- recipient
-   - incompatible score is zero
-
-4. `TraumaEngine.calculateScore`
+1. `TraumaEngine.calculateScore`
    - time decay
    - streak multiplier
    - minimum score floor
 
-5. `useInventory`
+2. `useInventory`
    - generated inventory always contains at least one safe donor option
    - consuming an empty bag returns false
    - consuming an available bag decrements inventory once

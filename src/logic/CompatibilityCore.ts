@@ -1,8 +1,15 @@
 import { getAntigensForType, type FullBloodType } from './BloodLogicCore';
 
+export interface CrossmatchDetails {
+    recipientAntibodies: string[];
+    donorAntigens: string[];
+    conflictAntigen: string | null;
+    educationalSummary: string;
+}
+
 export type CrossmatchResult =
-    | { safe: true; quality: 'EXACT' | 'COMPATIBLE'; reason: string }
-    | { safe: false; quality: 'INCOMPATIBLE'; reason: string };
+    | { safe: true; quality: 'EXACT' | 'COMPATIBLE'; reason: string; details: CrossmatchDetails }
+    | { safe: false; quality: 'INCOMPATIBLE'; reason: string; details: CrossmatchDetails };
 
 const PATIENT_ANTIBODIES: Record<FullBloodType, readonly string[]> = {
     'A+': ['B'], 'A-': ['B', 'Rh'],
@@ -13,14 +20,37 @@ const PATIENT_ANTIBODIES: Record<FullBloodType, readonly string[]> = {
 
 export class CrossmatchEngine {
     static analyze(patient: FullBloodType, donor: FullBloodType): CrossmatchResult {
-        const antibodies = PATIENT_ANTIBODIES[patient];
-        const donorAntigens = getAntigensForType(donor);
-        const conflict = donorAntigens.find(ag => antibodies.includes(ag));
+        const recipientAntibodies = [...PATIENT_ANTIBODIES[patient]];
+        const donorAntigens = [...getAntigensForType(donor)];
+        const conflict = donorAntigens.find(ag => recipientAntibodies.includes(ag)) ?? null;
+        const antibodySummary = recipientAntibodies.length > 0 ? recipientAntibodies.join(', ') : 'none';
+        const antigenSummary = donorAntigens.length > 0 ? donorAntigens.join(', ') : 'none';
+        const baseDetails = {
+            recipientAntibodies,
+            donorAntigens,
+            conflictAntigen: conflict,
+        };
 
-        if (conflict) {
-            return { safe: false, quality: 'INCOMPATIBLE', reason: `Reaction: Anti-${conflict} attacked Donor ${conflict}` };
+        if (conflict !== null) {
+            return {
+                safe: false,
+                quality: 'INCOMPATIBLE',
+                reason: `Reaction: Anti-${conflict} attacked Donor ${conflict}`,
+                details: {
+                    ...baseDetails,
+                    educationalSummary: `The recipient has antibodies against ${conflict}, so donor ${conflict} antigen would trigger an incompatible reaction.`,
+                },
+            };
         }
-        return { safe: true, quality: patient === donor ? 'EXACT' : 'COMPATIBLE', reason: 'Compatible' };
+        return {
+            safe: true,
+            quality: patient === donor ? 'EXACT' : 'COMPATIBLE',
+            reason: 'Compatible',
+            details: {
+                ...baseDetails,
+                educationalSummary: `Compatible match: recipient antibodies (${antibodySummary}) do not target donor antigens (${antigenSummary}).`,
+            },
+        };
     }
 
     static getStewardshipScore(patient: FullBloodType, donor: FullBloodType): number {
